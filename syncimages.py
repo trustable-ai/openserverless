@@ -122,6 +122,16 @@ Only the `:<tag>` part of the value is replaced, so third-party images
 not ours to retag.
 
 Every resolved image is printed, one per line, as `<image>:<tag>`.
+
+The top-level `version` field is synced too, from the latest tag of the
+`...-cli` repo. The cli is tagged `v<version>`, and the version it names
+is exactly what this field holds - the leading `v` is the tag's, not the
+version's, so it is dropped:
+
+    v0.9.0-incubating+26i13l12-snapshot -> 0.9.0-incubating+26i13l12-snapshot
+
+Note the separator: the cli spells its timestamp after a `+`, where the
+image repos use a `.`.
 """
 
 import argparse
@@ -321,17 +331,26 @@ def sync_runtimes(path, prefix, timestamp, write):
         write_json(path, runtimes)
 
 
-def sync_opsroot(path, prefix, tags, write):
-    """Repoint, in opsroot.json, each image we build ourselves.
+def sync_opsroot(path, prefix, tags, version, write):
+    """Repoint, in opsroot.json, each image we build ourselves, and the version.
 
-    Both halves move: the tag, and the `<registry>/<user>` the image is
-    pulled from. A fork publishes to its own registry, so pinning its tag
-    onto `docker.io/apache` would name an image that does not exist.
+    Both halves of an image move: the tag, and the `<registry>/<user>` it
+    is pulled from. A fork publishes to its own registry, so pinning its
+    tag onto `docker.io/apache` would name an image that does not exist.
     Third-party images (couchdb, redis, ...) are not in OPSROOT_REPOS and
     so keep both their registry and their tag.
+
+    `version` is the cli release this opsroot goes with; None (the cli
+    repo unreadable or untagged) leaves the field as it is.
     """
     with open(path) as file:
         opsroot = json.load(file)
+
+    if version is None:
+        warn(f"{path}: version left at {opsroot.get('version', '?')}")
+    else:
+        opsroot["version"] = version
+        report(path, f"version: {version}")
 
     images = opsroot["config"]["images"]
     for repo, keys in OPSROOT_REPOS:
@@ -428,6 +447,13 @@ def main(argv=None):
         f"{origin}-runtimes",
         lambda tag: tag[len("all_"):] if tag.startswith("all_") else None,
     )
+    # the cli is tagged `v<version>`, with the timestamp after a `+`, and
+    # the version it names is the whole tag without that leading `v`
+    cli = latest_tag(
+        f"{origin}-cli",
+        lambda tag: (tag.rpartition("+")[2] or None) if tag.startswith("v") else None,
+    )
+    version = cli[0][1:] if cli else None
     # the others are tagged BASETAG.<timestamp><SUFFIX>, and the whole tag
     # is what names the image
     tags = {}
@@ -438,7 +464,7 @@ def main(argv=None):
         tags[repo] = found[0] if found else None
 
     sync_runtimes(args.runtimes_json, prefix, runtimes[1] if runtimes else None, write)
-    sync_opsroot(args.opsroot_json, prefix, tags, write)
+    sync_opsroot(args.opsroot_json, prefix, tags, version, write)
 
     # stdout is block-buffered when piped, so without this the stderr
     # summary below would appear *before* the lines it summarises

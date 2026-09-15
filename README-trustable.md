@@ -10,7 +10,7 @@ Addedd the install script pointed by n7s.co/get-ops-trustable
 
 # trustable-ai/openserveless-runtimes
 
-re-added psycopd to python runtimes
+re-added psycopg and pymilvus to python runtimes
 
 # trustable-ai/openserveless-cli
 
@@ -18,7 +18,8 @@ repo.txt pointing to trustable-ai/openserveless-tasks
 
 # trustable-ai/openserverless-task
 
-opsroot and devcontainer updated to a private version
+opsroot.json and runtime.json updated to point to trustable-ai images
+
 
 
 
