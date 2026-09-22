@@ -14,14 +14,6 @@
 # KIND, either express or implied.  See the License for the
 # specific language governing permissions and limitations
 # under the License.
+#
 
-.attic/
-.vscode/
-.idea/
-**/.DS_Store
-network-cache/
-ops
-RELEASE
-rebrander.log
-opsroot.orig
-apache-rat*.jar
+This folder lists all the dependencies and their respective licenses and notices for the project.
