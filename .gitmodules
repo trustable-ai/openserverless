@@ -61,3 +61,4 @@
 [submodule "packages"]
 	path = packages
 	url = https://github.com/trustable-ai/openserverless-packages
+        branch = main
