@@ -41,3 +41,5 @@
 # skip the skip
 no-release.txt
 apache-rat-0.18.jar
+.gitignore
+README-trustable.md
