@@ -38,6 +38,9 @@ repo.txt pointing to trustable-ai/openserveless-tasks
 
 opsroot.json and runtime.json updated to point to trustable-ai images
 
+# trustable-ai/oplugins-op
+
+replaces index.html with a Trustant.AI Trustant Serverless page
 
 
 
